@@ -1,51 +1,78 @@
-// Se data não existe, criar o elemento na lista de lembretes
-// Se data já existe, criar o elemento dentro do item de lembretes da data em questão
-
-var lista_lembretes = [
-  { data: new Date("2000-02-01"), lembretes: ["lembrete 3"] },
-  { data: new Date("2001-02-01"), lembretes: ["lembrete 4"] },
-  { data: new Date("1999-12-01"), lembretes: ["lembrete 1", "lembrete 2"] },
-];
+const reminderList = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-  ordenarLista(lista_lembretes);
-  removerElementosListaHTML();
-  renderizarElementosLista(lista_lembretes);
-  lista_lembretes.push({
-    data: new Date("1998-12-01"),
-    lembretes: ["lembrete 5", "lembrete 6"],
-  });
+  const reminderForm = document.getElementById("reminderForm");
+  const reminderInput = document.getElementById("reminderInput");
+  const reminderDate = document.getElementById("reminderDate");
 
-  ordenarLista(lista_lembretes);
+  reminderForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const reminderText = reminderInput.value.trim();
+    const formatedDate = getDateWithoutTime(reminderDate.valueAsDate);
+    var reminder = { date: formatedDate, text: reminderText };
+    if (reminderText !== "") {
+      storeReminder(reminder);
+      eraseList();
+      sortList(reminderList);
+      renderListItems(reminderList);
+      reminderInput.value = "";
+    }
+  });
 });
 
-function ordenarLista(lista) {
-  lista.sort(function (a, b) {
-    return a.data.getTime() - b.data.getTime();
-  });
-  console.log(lista);
+function getDateWithoutTime(date) {
+  const dateWithoutTime = new Date(date);
+  dateWithoutTime.setHours(0, 0, 0, 0);
+
+  const year = dateWithoutTime.getFullYear();
+  const month = String(dateWithoutTime.getMonth() + 1).padStart(2, "0");
+  const day = String(dateWithoutTime.getDate() + 2).padStart(2, "0");
+  stringDate = `${year}-${month}-${day}`;
+  return new Date(stringDate);
 }
 
-function removerElementosListaHTML() {
-  const ul = document.getElementById("lista");
+function storeReminder(reminder) {
+  var existingDate = reminderList.find(
+    (item) => item.date.getTime() === reminder.date.getTime()
+  );
+
+  if (existingDate) {
+    existingDate.reminders.push(reminder.text);
+    return;
+  }
+
+  reminderList.push({
+    date: reminder.date,
+    reminders: [reminder.text],
+  });
+  return;
+}
+
+function sortList(list) {
+  list.sort(function (a, b) {
+    return a.date.getTime() - b.date.getTime();
+  });
+}
+
+function eraseList() {
+  const ul = document.getElementById("list");
   ul.innerText = "";
 }
 
-function renderizarElementosLista(lista) {
-  const listaData = document.getElementById("lista");
+function renderListItems(list) {
+  const dateList = document.getElementById("list");
+  list.forEach((element) => {
+    let dateItem = document.createElement("li");
+    dateItem.innerText = element.date;
+    let reminderList = document.createElement("ul");
 
-  lista.forEach((element) => {
-    let itemData = document.createElement("li");
-    itemData.innerText = element.data;
-    let listaLembretes = document.createElement("ul");
-
-    element.lembretes.forEach((lembrete) => {
-      let itemlembrete = document.createElement("li");
-      itemlembrete.innerText = lembrete;
-      listaLembretes.appendChild(itemlembrete);
+    element.reminders.forEach((lembrete) => {
+      let reminderItem = document.createElement("li");
+      reminderItem.innerText = lembrete;
+      reminderList.appendChild(reminderItem);
     });
 
-    itemData.appendChild(listaLembretes);
-    listaData.appendChild(itemData);
+    dateItem.appendChild(reminderList);
+    dateList.appendChild(dateItem);
   });
 }

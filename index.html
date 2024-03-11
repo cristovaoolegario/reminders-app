@@ -10,8 +10,16 @@
     <script src="script.js"></script>
   </head>
   <body>
-    <div id="listagem">
-      <ul id="lista"></ul>
+    <div class="container">
+      <h1>Reminder</h1>
+      <form id="reminderForm">
+        <input type="text" id="reminderInput" placeholder="Add new reminder" />
+        <input type="date" id="reminderDate" />
+        <button type="submit">Add</button>
+      </form>
+    </div>
+    <div id="list-wrapper">
+      <ul id="list"></ul>
     </div>
   </body>
 </html>
